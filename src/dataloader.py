@@ -139,18 +139,53 @@ class ALOVDataset(Dataset):
         return training_sample, opts_curr
 
 
-    def get_orig_sample(self, idx, i=1):
+    def get_orig_sample(self, idx, i):
         '''
-        Returns original iamge with bounding box at a specific index.
+        Returns original image with bounding box at a specific index.
         Range of valid index : [0, self.len - 1]
+
+        i : 0 for prev_img and 1 for curr_img
         '''
 
-import time
-time.
+        curr = cv2.imread(self.x[idx][i])
+        curr = bgr2rgb(curr)
+        currbb = self.get_bb(self.y[idx][i])
+        sample = {'image' : curr, 'bb' : currbb}
+
+        return sample
+
+    def get_bb(self, ann):
+        '''
+        ALOV annotation parser and returns bounding box in the format:
+        [left, upper, width, height]
+        '''
+
+        ann = ann.strip().split(' ')
+        left = min(float(ann[1]), float(ann[3]), float(ann[5]), float(ann[7]))
+        top  = min(float(ann[2]), float(ann[4]), float(ann[6]), float(ann[8]))
+        right = max(float(ann[1]), float(ann[3]), float(ann[5]), float(ann[7]))
+        bottom = max(float(ann[2]), float(ann[4]), float(ann[6]), float(ann[8]))
+
+        return [left, top, right, bottom]
+
+    
+    def show(self, idx, is_curr=1):
+        '''
+        For visualizing an image at a given index with it's corresponding gt_bb
+        
+        Arguments :
+            idx = index
+            is_curr = for prev frame : 0 | for current frame : 1
+        '''
+
+        sample = self.get_orig_sample(idx, is_curr)
+        image = sample['image']
+        image = 
 
 
 
 
+    
 
 
 
