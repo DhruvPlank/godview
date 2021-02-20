@@ -1,9 +1,9 @@
-import os
-import xml.etree.ElementTree as Et
-
-import numpy as np
 import cv2
+import numpy as np
 from torch.utils.data import Dataset
+
+import os
+from helper import *
 
 
 
@@ -180,16 +180,36 @@ class ALOVDataset(Dataset):
 
         sample = self.get_orig_sample(idx, is_curr)
         image = sample['image']
-        image = 
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        bb = sample['bb']
+        bb = [int(round(val)) for val in bb]
+        image = cv2.rectangle(image, (bb[0], bb[1]), (bb[2], bb[3]), (0, 255, 0), 2)
+        cv2.imshow('alov dataset sample : ' + str(idx), image)
+        cv2.waitKey(0)
 
 
+    def show_sample(self, idx):
+        '''
+        For visualizing the sample that is passed to GOTURN.
+        Shows previous frame and current frame with bounding box.
+        '''
 
+        x, _ = self.get_sample(idx)
+        prev_img = x['previmg']
+        curr_img = x['currimg']
+        bb = x['currbb']
+        bbox = BoundingBox(bb[0], bb[1], bb[2], bb[3])
+        bbox.unscale(curr_image)
+        bb = bbox.get_bb_list()
+        bb = [int(round(val)) for val in bb]
 
-    
+        prev_img = cv2.cvtColor(prev_img, cv2.COLOR_RGB2BGR)
+        curr_img = cv2.cvtColor(curr_img, cv2.COLOR_RGB2BGR)
+        curr_img = cv2.rectangle(curr_img, (bb[0], bb[1]), (bb[2], bb[3]), (0, 255, 0), 2)
 
-
-
-
+        concat_img = np.hstack((prev_img, curr_img))
+        cv2.imshow('ALOV dataset sample : ' + str(idx), concat_image)
+        cv2.waitKey(0)
 
 
 

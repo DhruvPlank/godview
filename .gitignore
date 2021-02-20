@@ -1,3 +1,4 @@
 data
 .DS_Store
 tags.lock
+__pycache__
