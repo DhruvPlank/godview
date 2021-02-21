@@ -2,13 +2,13 @@ import random
 import math
 
 
-RAND_MAX = 2147483647
-
-def sample_rand_uniform(RAND_MAX):
+def sample_rand_uniform():
+    RAND_MAX = 2147483647
     return (random.randint(0, RAND_MAX) + 1) / (RAND_MAX + 2)
 
 
-def sample_exp_two_sides(RAND_MAX, lambda_):
+def sample_exp_two_sides(lambda_):
+    RAND_MAX = 2147483647
     sign = random.randint(0, RAND_MAX)
     
     if (sign % 2) == 0:
@@ -16,7 +16,7 @@ def sample_exp_two_sides(RAND_MAX, lambda_):
     else:
         sign = -1
     
-    rand_uniform = sample_rand_uniform(RAND_MAX)
+    rand_uniform = sample_rand_uniform()
 
     return math.log(rand_uniform) / (lambda_ * sign)
 

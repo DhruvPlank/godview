@@ -19,7 +19,8 @@ class ALOVDataset(Dataset):
                         '02-SurfaceCover_video00012',
                         '03-Specularity_video00003',
                         '03-Specularity_video00012',
-                        '10-LowContrast_video00013']
+                        '10-LowContrast_video00013',
+                        '.DS_Store']
 
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -51,31 +52,32 @@ class ALOVDataset(Dataset):
         print('Parsing ALOV dataset ...')
 
         for _file in t_dir:
-            vids = os.listdir(root_dir + _file)
-            for vid in vids:
-                if vid in self.exclude:
-                    continue
+            if not _file.startswith('.'):
+                vids = os.listdir(root_dir + _file)
+                for vid in vids:
+                    if vid in self.exclude:
+                        continue
 
-                vid_src = self.root_dir + _file + "/" + vid
-                vid_ann = self.target_dir + _file + "/" + vid + ".ann"
-                frames = os.listdir(vid_src)
-                frames.sort()
-                # frames as the entire path 
-                frames = [vid_src + "/" + frame for frame in frames]
-                frames = np.array(frames)
+                    vid_src = self.root_dir + _file + "/" + vid
+                    vid_ann = self.target_dir + _file + "/" + vid + ".ann"
+                    frames = os.listdir(vid_src)
+                    frames.sort()
+                    # frames as the entire path 
+                    frames = [vid_src + "/" + frame for frame in frames]
+                    frames = np.array(frames)
 
-                f = open(vid_ann, "r")
-                annotations = f.readlines()
-                f.close()
-                frame_idxs = [int(ann.split(' ')[0])-1 for ann in annotations]
-                num_annot += len(annotations)
+                    f = open(vid_ann, "r")
+                    annotations = f.readlines()
+                    f.close()
+                    frame_idxs = [int(ann.split(' ')[0])-1 for ann in annotations]
+                    num_annot += len(annotations)
 
-                for i in range(len(frame_idxs)-1):
-                    curr_idx = frame_idxs[i]
-                    next_idx = frame_idxs[i+1]
+                    for i in range(len(frame_idxs)-1):
+                        curr_idx = frame_idxs[i]
+                        next_idx = frame_idxs[i+1]
 
-                    x.append([frames[curr_idx], frames[next_idx]])
-                    y.append([annotations[curr_idx], annotations[next_idx]])
+                        x.append([frames[curr_idx], frames[next_idx]])
+                        y.append([annotations[i], annotations[i+1]])
 
 
         x, y = np.array(x), np.array(y)
@@ -114,7 +116,7 @@ class ALOVDataset(Dataset):
         bbox_gt_recenter = BoundingBox(0, 0, 0, 0)
         bbox_gt_recenter = bbox_curr_gt.recenter(rand_search_loc, edge_spacing_x, edge_spacing_y, bbox_gt_recenter)
 
-        curr_sample['image'] = rand_search_region
+        curr_sample['image'] = rand_search_reg
         curr_sample['bb'] = bbox_gt_recenter.get_bb_list()
 
         # options for visualization
@@ -139,7 +141,7 @@ class ALOVDataset(Dataset):
         return training_sample, opts_curr
 
 
-    def get_orig_sample(self, idx, i):
+    def get_orig_sample(self, idx, i=1):
         '''
         Returns original image with bounding box at a specific index.
         Range of valid index : [0, self.len - 1]

@@ -32,11 +32,11 @@ class Rescale(object):
                 new_h, new_w = int(self.output_size), int(self.output_size*(w/h))
 
         else:
-            new_h, new_w = int(self.output_size)
+            new_h, new_w = self.output_size
 
-
+        new_h, new_w = int(new_h), int(new_w)
         img = cv2.resize(image, (new_h, new_w), interpolation=cv2.INTER_CUBIC)
-        bbox = Bounding(bb[0], bb[1], bb[2], bb[3])
+        bbox = BoundingBox(bb[0], bb[1], bb[2], bb[3])
         bbox.scale(opts['search_region'])
 
         return {'image' : img, 'bb' : bbox.get_bb_list()}
@@ -93,12 +93,12 @@ def shift_crop_training_sample(sample, bb_params):
     currbb = sample['bb']
     bbox_curr_gt = BoundingBox(currbb[0], currbb[1], currbb[2], currbb[3])
     bbox_curr_shift = BoundingBox(0, 0, 0, 0)
-    bbox_curr_shift = bbox_curr_gt.shfit(currimg,
-            bb_params['lambda_scale_frac'],
-            bb_params['lambda_shift_frac'],
-            bb_params['min_scale'],
-            bb_params['max_scale'], True,
-            bbox_curr_shift)
+    bbox_curr_shift = bbox_curr_gt.shift(currimg,
+                                         bb_params['lambda_scale_frac'],
+                                         bb_params['lambda_shift_frac'],
+                                         bb_params['min_scale'],
+                                         bb_params['max_scale'], True,
+                                         bbox_curr_shift)
 
     (rand_search_region, rand_search_location,
             edge_spacing_x, edge_spacing_y) = cropPadImage(bbox_curr_shift, currimg)
@@ -212,7 +212,7 @@ def computeCropPadImageLocation(bbox_tight, image):
 
     # padded roi width
     left_half = min(output_width / 2.0, bbox_center_x)
-    right_half = min(output_wiwth / 2.0, image_width - bbox_center_x)
+    right_half = min(output_width / 2.0, image_width - bbox_center_x)
     roi_width = max(1.0, left_half + right_half)
 
     # padded roi height
@@ -221,7 +221,7 @@ def computeCropPadImageLocation(bbox_tight, image):
     roi_height = max(1.0, top_half + bottom_half)
 
     # padded image location in the original image
-    objPadIamgeLocation = BoundingBox(roi_left,
+    objPadImageLocation = BoundingBox(roi_left,
                                       roi_bottom,
                                       roi_left + roi_width,
                                       roi_bottom + roi_height)
